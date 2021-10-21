@@ -60,6 +60,21 @@ app.post("/students/insert", (req, res) => {
     });
 });
 
+app.get("/students/:id", async (req, res) => {
+  let { id } = req.params;
+  try {
+    let data = await Student.findOne({ id });
+    if (data !== null) {
+      res.render("studentPage.ejs", { data });
+    } else {
+      res.send("Cannot find this student. Please enter a valid id.");
+    }
+  } catch (e) {
+    res.send("Error!!!");
+    console.log(e);
+  }
+});
+
 app.get("/*", (req, res) => {
   res.status(404);
   res.send("Not allowed.");
