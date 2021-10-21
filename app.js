@@ -27,8 +27,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/students", async (req, res) => {
-  let data = await Student.find();
-  res.render("students.ejs", { data });
+  try {
+    let data = await Student.find();
+    res.render("students.ejs", { data });
+  } catch {
+    res.send("Error with finding data.");
+  }
 });
 
 app.get("/students/insert", (req, res) => {
@@ -54,6 +58,11 @@ app.post("/students/insert", (req, res) => {
       console.log(e);
       res.render("reject.ejs");
     });
+});
+
+app.get("/*", (req, res) => {
+  res.status(404);
+  res.send("Not allowed.");
 });
 
 app.listen(3000, () => {
