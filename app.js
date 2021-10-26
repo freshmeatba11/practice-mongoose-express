@@ -4,10 +4,13 @@ const ejs = require("ejs");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const Student = require("./models/student");
+const methodOverride = require("method-override");
+const { findOneAndUpdate } = require("./models/student");
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.use(methodOverride("_method"));
 
 mongoose
   .connect("mongodb://localhost:27017/studentDB", {
@@ -71,7 +74,34 @@ app.get("/students/:id", async (req, res) => {
     }
   } catch (e) {
     res.send("Error!!!");
-    console.log(e);
+  }
+});
+
+app.get("/students/edit/:id", async (req, res) => {
+  let { id } = req.params;
+  try {
+    let data = await Student.findOne({ id });
+    if (data !== null) {
+      res.render("edit.ejs", { data });
+    } else {
+      res.send("Cannot find student.");
+    }
+  } catch {
+    res.send("Error!!");
+  }
+});
+
+app.put("/students/edit/:id", async (req, res) => {
+  let { id, name, age, merit, other } = req.body;
+  try {
+    let d = await Student.findOneAndUpdate(
+      { id },
+      { id, name, age, scholarship: { merit, other } },
+      { new: true, runValidators: true }
+    );
+    res.redirect(`/students/${id}`);
+  } catch {
+    res.render("reject.ejs");
   }
 });
 
